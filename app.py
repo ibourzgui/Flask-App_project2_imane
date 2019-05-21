@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, jsonify,flash, url_for
+from flask import Flask, render_template, redirect, jsonify
 from flask_pymongo import PyMongo
 from sodapy import Socrata
 import time
@@ -6,7 +6,7 @@ import json
 from bson import json_util
 
 app = Flask(__name__)
-app.secret_key = b'_5#y2L"F4Qsdsdsd8z\n\xec]/'
+
 
 # establish a connection to mongodb and create table ny_potholes
 mongo = PyMongo(app, uri="mongodb://localhost:27017/ny_potholes")
@@ -19,7 +19,7 @@ def home():
 # connect to the city of NY API and extract the first 2000 observations and insert into db
 @app.route("/api/v1.0/getdata")
 def getData():
-	print("Fetching data from public website")
+	print("Fetching data")
 	#drop mongo data from db if exists 
 	mongo.db.data.drop()
 	#call the socrata client to get first 2000 potholes 
@@ -36,12 +36,6 @@ def getData():
         f"<ul><li><a href='http://127.0.0.1:5000/api/v1.0/renderdata'>/api/v1.0/renderdata</a><br/></li></ul>"
 	)
 
-# @app.route("/api/v1.0/renderdata")
-# def renderData():
-# 	db_data = mongo.db.data.find_one()	
-# 	print(db_data)
-
-# 	return render_template("index.html", potholeData= db_data)
 
 # routes for other html pages
 @app.route("/aboutus")
@@ -52,16 +46,16 @@ def about():
 def visualize():
 	return render_template("visualization.html")
 
-# route to render specific columns
+# route to render data from db into table
 @app.route("/data")
 def data():
-	flash('Getting data')
+	
 	db_data  = list(mongo.db.data.find())
-	flash('Data is ready')
+	
 	# json.dumps(docs_list, default=json_util.default)
 	return render_template("data.html", potholeData= db_data[:200])
 
-@app.route("/api/v1.0/refreshdata")
+@app.route("/refreshdata")
 def refreshgetData():
 	print("fetching data")
 	#drop mongo data from db if exists 
